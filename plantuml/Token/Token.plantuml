@@ -1,0 +1,165 @@
+@startuml TokenSmartContract
+left to right direction
+
+'这个作用将线条模糊和扭曲化
+skinparam handwritten true
+skinparam packageStyle rectangle actor customer
+
+'下面的这些定  义了角色和用例的一些颜色设置
+skinparam usecase {
+    BackgroundColor Green
+    BorderColor DarkSlateGray
+    ArrowColor Olive
+    ActorBorderColor black
+    ActorFontName Courier
+}
+
+skinparam class{
+    BackgroundColor black
+    BorderColor white
+    FontColor white
+}
+
+
+
+class IncentivePolicy{
+    #car_cost: int
+    #bus_cost:int
+    #heavy_rail_cost:int
+    +Voter:struct
+    +Travel_Mode:struct
+    +voters:mapping
+    +EachRoundCarbonSavingUsers:mapping
+    +verifiedCarbonCredit:mapping
+    +getVerifiedRound:mapping
+    +getCarbonCoinAmountForSpecificRound:mapping
+    +EachUserSaveCarbonForVerifiedSpecificRound:mapping
+    +verifyUniqueCarbonSavingUser:mapping
+    +verifyAllUserCarbonSaving:int[]
+    +verifyAllUserCarbonCredit:int[]
+    +voters_:Voter[]
+    +allUserAddress:address[]
+    +carbonSavingUsers:address[]
+    +EachCarbonSavingUserForVerifiedSpecificRound:address[]
+    #initialTargetAllowance:int
+    #fresh_round:int
+    #votingUser:int
+    #chairperson:address
+    #round:uint
+    #allCarbonCreditAmounts:uint256
+    #CurrentCarbonCredit:uint256
+    #THRESHOLD:int
+    #currentCarbonSavingValue:int
+    #verifiedCarbonSavingValueForSepecificRound:int
+    #cc_1:CarbonCoin
+    +getTHRESHOLD():int
+    +setTHRESHOLD(int _THRESHOLD)
+    +getTypeOfCarbonCoinForUser:CarbonCoinV2[] memory
+    +initialNewUser()
+    +setTravelDataBySensor(Travel_mode memory _travel_mode)
+    +calculateCurrentCarbonCost()
+    +calculateEachUserCarbonSavings():int
+    +verify(uint roundToVerifyThirdParty, int _carbonSavingValue, address sender)
+    -verifyToThirdParty(uint _roundToVerifyThirdParty, int carbonSaving)
+    +mintCarbonCoinForSpecificRound(CarbonCredit carbonCredit):CarbonCoinV2
+    +distributeToEachUsers(uint thisRound)
+    +transferToCarbonCredit(uint256 value, CarbonCredit _carboncredit):bool
+    +purchaseTheCarbonCreditAndThirdParty(uint256 value):bool
+    -burnTheRetringCarbonCoin(CarbonCredit carboncredit):bool
+    +theNewRound()
+    -UpateUsersTargetAllowance(Voter storage _voter)
+}
+
+struct Voter{
+    +target_carbon_allowance:int
+    +carbon_cost_per_week:int[]
+    +currentWeek_carbonSaving:int
+    +allCarbonSaving:int
+    +AllCarbonCoin:uint256
+    +carboncoin:CarbonCoin[]
+    +decreasedAllowancePercentage_[]:int
+    +isVoted:int
+    +round:int
+    +sensor_travel_mode:Travel_mode
+    +expect_travel_mode:Travel_mode
+    +verifyCarbonSavingEachRound:mapping
+    +verifyCarbonSavingEachRoundOnlyForUser:mapping
+    +TheNumberOfEachTypeCarbonCoin:mapping
+
+}
+
+struct Travel_Mode{
+    +passenger_cars:int
+    +bus:int
+    +heavy_rail:int
+    +walking:int
+    +cycling:int
+}
+
+
+class CarbonCredit{
+    #ID:uint256
+    #carbonCreditOwner: address
+    #createTimestamp: uint
+    #retireTimestamp:uint
+    #number:uint256
+    +round:uint256
+    #isBurn:bool
+    #isUsed:bool
+    #AVALIABLE_TIME:uint256
+    #IDByThirdParty:uint256[]
+    #price:uint256
+    +getIDByThirdParty():uint256[] memory
+    +setIDByThirdParty(uint256[] memory _IDByThirdParty)
+    +getPrice():uint256
+    +setPrice(uint256 _price)
+    +getNumber():uint256
+    +setNumber(uint256 _number)
+    +getAVALIABLE_TIME():uint256
+    +setAVALIABLE_TIME(uint256 _AVALIABLE_TIME, uint256 _Uint)
+    +getCarbonCreditID():uint256
+    +setCarbonCreditID(uint256 _ID)
+    +getCarbonCreditID():uint256
+    +setCarbonCreditID(uint256 _ID)
+    +getCarbonCreditOwner:address
+    +setCarbonCreditOwner(address _carbonCreditOwner)
+    +getRound():uint256
+    +setRound(uint256 _round)
+    +getIsBurn():bool
+    +setIsBurn(bool _isBurn)
+    +getIsUsed():bool
+    +setIsUsed(bool _isUsed) 
+    +getCarbonCreditTimeStamp():uint256
+    +getCarbonCreditRetireTimeStamp():uint256
+    +getRetireTimeStamp():uint256
+    +verify(CarbonCredit carboncredit):bool
+}
+
+
+class CarbonCoin{
+    +i_owner: address
+    #belongedCarbonCredit: CarbonCredit
+    #number:int
+    #CarbonCreditID: uint256
+    #carbonCoinTimeStamp:uint256
+    #carbonCoinRetireTimeStamp:uint256
+    #AVALIABLE_TIME:uint256
+    +round:uint256
+    +getNumber():int
+    +getAVALIABLE_TIME();uint256
+    +setAVALIABLE_TIME(uint256 _AVALIABLE_TIME)
+    +getCarbonCreditID():uint256
+    +setCarbonCreditID(uint256 _ID)
+    +getCarbonCoinTimeStamp():uint256
+    +setCarbonCoinRetireTimeStamp(uint256 _RetireTimeStamp)
+    +getRetireTimeStamp():uint256
+}
+
+
+CarbonCredit -- CarbonCoin: < belonging 
+
+IncentivePolicy -- Voter: < belonging
+
+IncentivePolicy -- Travel_Mode: < belonging
+
+@enduml

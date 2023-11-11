@@ -1,0 +1,120 @@
+@startuml InteractionToToken
+
+'这个作用将线条模糊和扭曲化
+skinparam handwritten true
+skinparam packageStyle rectangle actor customer
+
+'下面的这些定  义了角色和用例的一些颜色设置
+skinparam usecase {
+    BackgroundColor Green
+    BorderColor DarkSlateGray
+    ArrowColor Olive
+    ActorBorderColor black
+    ActorFontName Courier
+}
+
+start
+
+Partition "IncentivePolicy合约调用"{
+:IncentivePolicy Deploy;
+
+:initialNewUser();
+    note
+        初始新的用户
+        ----
+        之后会修改改方法
+    end note
+:setTravelDataBySensor(Travel_mode memory _travel_mode);
+    note
+        输入用户本周用户的出行数据
+        ----
+        需要获取前端的数据
+    end note
+:calculateCurrentCarbonCost();
+    note
+        计算用户本周的碳消耗量以及节省量
+    end note
+:calculateEachUserCarbonSavings():int;
+    note
+        存储本周内节省了碳的用户以及节省量，并且与threshold做比较
+    end note
+:verifyToThirdParty(uint _roundToVerifyThirdParty, int carbonSaving);
+    note
+        满足碳节省量>threshold的时候，我们才会通知到guildMember,
+        并交给thirdParty验证
+    end note
+}
+
+Partition "CarbonCredit上链"{
+:CarbonCredit Deploy;
+    note
+        部署CarbonCredit上链
+    end note
+:setAVALIABLE_TIME(uint256 _AVALIABLE_TIME, uint256 _Uint);
+    note
+        设置有效时间
+        ----
+        _AVALIABLE_TIME表示时长，_Uint表示单位:0表示秒，
+        1表示分钟，2表示天，3表示周，4，表示月，5表示年
+    end note
+:getCarbonCreditRetireTimeStamp;
+    note
+        获得CarbonCredit的退休时间
+    end note
+:setRound(uint256 _round);
+    note
+        设置该CarbonCredit为第几轮的
+    end note
+:setCarbonCreditID(uint256 _ID);
+    note
+        设置CarbonCredit _ID
+        ----
+        ID和round一一对应
+    end note
+}
+
+Partition "IncentivePolicy合约根据上链CarbonCredit进行mint CarbonCoin"{
+:mintCarbonCoinForSpecificRound(CarbonCredit carbonCredit):CarbonCoin;
+    note
+        根据链上的carboncredit address得到对应的CarbonCoin链上地址
+    end note
+}
+
+Partition "CarbonCoin合约自动化部署"{
+    note
+        所有属性值和CarbonCredit一致，且不可更改
+    end note
+}
+
+Partition "IncentivePolicy合约中分发CarbonCoin"{
+:distributeToEachUsers(uint thisRound);
+    note
+        根据该CarbonCredit所对应哪一轮来根据
+        用户节省碳比率来分发CarbonCoin给用户
+    end note
+
+}
+
+Partition "IncentivePolicy合约删除退休的CarbonCredit"{
+:transferToCarbonCredit(uint256 value, CarbonCredit _carboncredit):bool;
+    note
+        当用户购买CarbonCoin时
+        ----
+        之后该部分代码用新的smart contract 重构
+    end note
+:burnTheRetringCarbonCoin(CarbonCredit carboncredit):bool;
+    note
+        判断CarbonCredit是否过期,过期会把对应的ID的CarbonCoin全部删除
+        ----
+        之后该部分代码用新的smart contract 重构
+    end note
+:purchaseTheCarbonCreditAndThirdParty(uint256 value):bool;
+    note
+        判断carboncoin是否充足
+        ----
+        之后该部分代码用新的smart contract 重构
+    end note
+}
+
+stop
+@enduml
